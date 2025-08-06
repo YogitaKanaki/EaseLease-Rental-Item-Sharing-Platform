@@ -31,9 +31,13 @@ import cart_icon from "./cart_icon.svg"
 import search_icon from "./search_icon.svg"
 import nav_cart_icon from "./nav_cart_icon.svg"
 import arrow_right_icon_colored from "./arrow_right_icon_colored.svg"
+import add_address_image from "./add_address_image.svg"
+import upload_area from "./upload_area.png"
 
 export const assets={
     logo,
+    upload_area,
+    add_address_image,
     arrow_right_icon_colored,
     nav_cart_icon,
     search_icon,
@@ -67,11 +71,6 @@ export const assets={
     events_img1,
     events_img2,
 };
-
-export const dummyAddress = [
-  { street: "123 Main Street", city: "New York" },
-  { street: "456 Park Ave", city: "Los Angeles" }
-];
 
 export const categories = [
   {
@@ -118,7 +117,10 @@ export const categories = [
   },
 ];
 
-//
+export const dummyAddress = [
+  { street: "130 Kuchan Nagar", city: "Solapur" ,state:"Maharashtra",zipcode:"413005",country:"India"},
+];
+
 export const DummyProducts = [
   // Cameras
   {
@@ -258,6 +260,54 @@ export const DummyProducts = [
     inStock: true,
   },
 ];
+
+export const dummyRentals = [
+  {
+    _id: "67f258798f87e633667863a1",
+    userId: "67b5880e4d09769c5ca61644",
+    items: [
+      {
+        product: DummyProducts[0], // e.g., Canon DSLR Camera
+        quantity: 1,
+        _id: "67f258798f87e633667863a2",
+      },
+    ],
+    amount: 2500, // Total amount = rentalPrice + deposit
+    address: dummyAddress[0],
+    paymentType: "Online Payment",
+    isPaid: true,
+    startDate: "2025-08-01",
+    endDate: "2025-08-05",
+    createdAt: "2025-07-30T09:30:00.000Z",
+    updatedAt: "2025-07-30T09:30:00.000Z",
+  },
+  {
+    _id: "67f258798f87e633667863a3",
+    userId: "67b5880e4d09769c5ca61644",
+    items: [
+      {
+        product:DummyProducts[2], // e.g., Sofa 
+        quantity: 1,
+        _id: "67f258798f87e633667863a4",
+      },
+    ],
+    amount: 6000,
+    address: dummyAddress[1],
+    paymentType: "Credit Card",
+    isPaid: false,
+    startDate: "2025-08-10",
+    endDate: "2025-08-15",
+    createdAt: "2025-07-29T10:00:00.000Z",
+    updatedAt: "2025-07-29T10:00:00.000Z",
+  },
+];
+
+
+
+
+
+//
+
 
 
 

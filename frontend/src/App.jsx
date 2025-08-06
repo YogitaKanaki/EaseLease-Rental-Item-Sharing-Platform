@@ -10,6 +10,10 @@ import AllProducts from './pages/AllProducts'
 import ProductCategory from './pages/ProductCategory'
 import ProductDetails from './pages/ProductDetails'
 import RentNow from './pages/RentNow'
+import AddAddress from './pages/AddAddress'
+import Rentals from './pages/Rentals'
+import Lends from './pages/Lends'
+import AddItems from './pages/AddItems'
 
 
 const App = () => {
@@ -29,6 +33,11 @@ const App = () => {
           <Route path='/products/:category' element={<ProductCategory/>} />
           <Route path='/products/:category/:id' element={<ProductDetails/>} />
           <Route path='/rentnow' element={<RentNow/>} />
+          <Route path='/add-address' element={<AddAddress/>} />
+          <Route path='/rentals' element={<Rentals/>} />
+          <Route path='/listings' element={<Lends/>} />
+          <Route path='/addItem' element={<AddItems/>} />
+
         </Routes>
       </div>
 

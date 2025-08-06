@@ -1,12 +1,11 @@
 import { useContext, useEffect, useState, createContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { DummyProducts } from "../assets/assets";
-import toast from "react-hot-toast";
 
 export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
-    const currency = import.meta.env.VITE_CURRENCY; // fixed: should be import.meta.env
+    const currency = import.meta.env.VITE_CURRENCY; 
     const navigate = useNavigate();
 
     const [user, setUser] = useState(true);

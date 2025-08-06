@@ -3,6 +3,7 @@ import { useAppContext } from "../context/AppContext";
 import { Link, useParams } from "react-router-dom";
 import { assets } from "../assets/assets";
 import ProductCard from "../components/ProductCard";
+import {toast} from "react-hot-toast";
 
 const ProductDetails = () => {
 
@@ -31,7 +32,9 @@ const ProductDetails = () => {
 
     const handleRentNow = () => {
         if(!startDate || !endDate){
-            alert("Please select both start and end dates");
+            //alert("Please select both start and end dates");
+            toast.error("Please select both start and end dates")
+            
             return;
         }
         navigate('/rentnow', { state: { productId: product._id, startDate, endDate } });

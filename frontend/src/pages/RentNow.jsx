@@ -97,7 +97,7 @@ const RentNow = () => {
                   onClick={() => {setSelectedAddresses(address);
                      setShowAddress(false)}}
                   className="text-gray-600 p-2 hover:bg-gray-100 cursor-pointer">
-                  {address.street},{address.city}
+                  {address.street},{address.city},{address.zipcode},{address.state},{address.country}
                 </p>
             )) }
                 <p
