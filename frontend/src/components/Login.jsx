@@ -9,7 +9,32 @@ const Login = () => {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
 
-    const onSubmitHandler=async(event)=>{
+//     const onSubmitHandler = async (event) => {
+//   event.preventDefault();
+
+//   const endpoint = state === "login" ? "login" : "register";
+//   const res = await fetch(`http://localhost:8080/api/auth/${endpoint}`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ name, email, password }),
+//   });
+
+//   const data = await res.json();
+
+//   if (state === "login") {
+//     if (res.ok && data.email) {
+//       setUser({ email: data.email, name: data.name });
+//       setShowUserLogin(false);
+//     } else {
+//       alert("Invalid credentials");
+//     }
+//   } else {
+//     alert(data); // shows "Registration successful" or error
+//     setState("login");
+//   }
+// };
+
+ const onSubmitHandler=async(event)=>{
         event.preventDefault(); //stops page from reloading
         setUser({
             email:"abc@gmail.com",

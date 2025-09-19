@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { assets } from "../assets/assets";
 import ProductCard from "../components/ProductCard";
 import {toast} from "react-hot-toast";
+import { LightbulbIcon } from "lucide-react";
 
 const ProductDetails = () => {
 
@@ -81,6 +82,12 @@ const ProductDetails = () => {
                         <span className="text-gray-500/70">(inclusive of all taxes)</span>
                     </div>
 
+                    {/* Owner name */}
+                    <div className="mt-4">
+                        <p className="font-medium">Owner:</p>
+                        <p className="text-gray-500/80">{product.owner || "Not specified"}</p>
+                    </div>
+
                     <p className="text-base font-medium mt-6">About Product</p>
                     <ul className="list-disc ml-4 text-gray-500/70">
                         {product.description.map((desc, index) => (
@@ -115,8 +122,11 @@ const ProductDetails = () => {
                         <button onClick={handleRentNow} className="w-full py-3.5 cursor-pointer font-medium bg-primary text-white hover:bg-primary-dull transition" >
                             Rent Now
                         </button>
+                      
                     </div>
+                    
                 </div>
+                
             </div>
 
             {/*----related products----*/}

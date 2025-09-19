@@ -4,48 +4,40 @@ import { Link } from 'react-router-dom'
 
 const MainBanner = () => {
   return (
-    <div className='relative'>
-      <img src={assets.banner1} alt='banner' className='w-full hidden md:block' />
-      <img src={assets.banner1} alt='banner' className='w-full md:hidden' />
+    <div className="relative w-full max-w-[700px] h-[250px] mx-auto rounded-lg overflow-hidden">
+      {/* Background image */}
+      <img
+        src={assets.banner1}
+        alt="banner"
+        className="absolute inset-0 w-[110%] h-full object-cover left-1/2 -translate-x-1/2"
+      />
 
-      <div className='absolute inset-0 flex flex-col items-center md:items-start 
-        justify-start px-6 md:pl-20 lg:pl-28 pt-16 md:pt-24'>
-
+      {/* Overlay content */}
+      <div className="relative z-10 flex flex-col items-center md:items-start justify-center h-full px-6 md:pl-12 text-white">
         <h1
-          className='text-3xl md:text-4xl lg:text-5xl font-bold 
-          text-center md:text-left max-w-80 md:max-w-lg 
-          leading-tight lg:leading-snug'
+          className="text-2xl md:text-4xl lg:text-5xl font-bold text-center md:text-left leading-tight lg:leading-snug drop-shadow-lg"
         >
           "Rent it. Use it. Return it."
         </h1>
 
-        <div className='flex items-center mt-8 gap-4 font-medium'>
-          <Link
-            to={'/products'}
-            className='group flex items-center gap-2 px-7 md:px-9 py-3 bg-primary 
-              hover:bg-primary-dull transition rounded text-white cursor-pointer'
-          >
-            Shop Now
-            <img
-              className='md:hidden transition group-focus:translate-x-1'
-              src={assets.arrow}
-              alt='arrow'
-            />
-          </Link>
+        <div className="flex items-center mt-6 gap-4 font-medium">
+          
 
           <Link
             to={'/products'}
-            className='group hidden md:flex items-center gap-2 px-9 py-3 cursor-pointer'
+            className="group hidden md:flex items-center gap-2 px-8 py-3 bg-white text-black rounded cursor-pointer hover:bg-gray-200"
           >
             Explore Deals
             <img
-              className='transition group-hover:translate-x-1'
+              className="transition group-hover:translate-x-1"
               src={assets.black_arrow}
-              alt='arrow'
+              alt="arrow"
             />
           </Link>
         </div>
       </div>
+
+      
     </div>
   )
 }

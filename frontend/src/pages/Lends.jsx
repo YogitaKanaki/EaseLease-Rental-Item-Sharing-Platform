@@ -1,9 +1,11 @@
 import React from "react";
 import { DummyProducts, dummyRentals } from "../assets/assets";
-//import { DummyProducts, dummyRentals } from "../assets"; // Adjust path based on your folder structure
+import { Lightbulb } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Lends = () => {
-  const currency = "₹"; // You can change it to "$" if needed
+  const currency = "₹";
+  const navigate = useNavigate();
 
   // Create a mapping of productId => bookings
   const productBookings = {};
@@ -12,7 +14,14 @@ const Lends = () => {
       const productId = item.product._id;
       if (!productBookings[productId]) productBookings[productId] = [];
       productBookings[productId].push({
-        user: rental.userId || "User", // If you want names, expand dummyRentals with full user info
+        user: {
+          name: rental.name || "Unknown",
+          email: rental.contact?.includes("@") ? rental.contact : "",
+          contact:
+            rental.contact && !rental.contact.includes("@")
+              ? rental.contact
+              : "",
+        },
         startDate: rental.startDate,
         endDate: rental.endDate,
         isPaid: rental.isPaid,
@@ -38,7 +47,9 @@ const Lends = () => {
                 className="w-32 h-32 object-cover rounded-md shadow"
               />
               <div className="text-center lg:text-left">
-                <h3 className="text-xl font-semibold text-gray-800">{product.name}</h3>
+                <h3 className="text-xl font-semibold text-gray-800">
+                  {product.name}
+                </h3>
                 <p className="text-sm text-gray-500 mt-1">{product.category}</p>
                 <p className="text-sm text-gray-600 mt-2">
                   <span className="font-medium text-indigo-600">Deposit:</span>{" "}
@@ -48,9 +59,13 @@ const Lends = () => {
                 <p className="text-sm mt-1">
                   <span className="font-medium">Status:</span>{" "}
                   {product.inStock ? (
-                    <span className="text-green-600 font-semibold">In Stock</span>
+                    <span className="text-green-600 font-semibold">
+                      In Stock
+                    </span>
                   ) : (
-                    <span className="text-red-600 font-semibold">Out of Stock</span>
+                    <span className="text-red-600 font-semibold">
+                      Out of Stock
+                    </span>
                   )}
                 </p>
               </div>
@@ -63,25 +78,69 @@ const Lends = () => {
                 productBookings[product._id].map((booking, idx) => (
                   <div
                     key={idx}
-                    className="bg-gray-50 rounded-lg px-4 py-3 mb-3 border border-gray-200"
+                    className="bg-gray-50 rounded-lg px-4 py-3 mb-3 border border-gray-200 flex justify-between items-center"
                   >
-                    <p className="text-sm text-gray-700 mb-1">
-                      👤 <span className="font-medium">User:</span>{" "}
-                      {typeof booking.user === "object"
-                        ? booking.user.name
-                        : booking.user}
-                    </p>
-                    <p className="text-sm text-gray-700 mb-1">
-                      📅 <span className="font-medium">Dates:</span>{" "}
-                      {booking.startDate} to {booking.endDate}
-                    </p>
-                    <p
-                      className={`text-sm font-medium ${
-                        booking.isPaid ? "text-green-600" : "text-red-600"
-                      }`}
-                    >
-                      💰 Payment: {booking.isPaid ? "Paid" : "Unpaid"}
-                    </p>
+                    <div>
+                      <p className="text-sm text-gray-700 mb-1">
+                        👤 <span className="font-medium">Renter Name:</span>{" "}
+                        {booking.user?.name}
+                      </p>
+                      {booking.user?.contact && (
+                        <p className="text-sm text-gray-700 mb-1">
+                          📞 <span className="font-medium">Contact:</span>{" "}
+                          <a
+                            href={`tel:${booking.user.contact}`}
+                            className="text-blue-600 hover:underline"
+                          >
+                            {booking.user.contact}
+                          </a>
+                        </p>
+                      )}
+                      {booking.user?.email && (
+                        <p className="text-sm text-gray-700 mb-1">
+                          📧 <span className="font-medium">Email:</span>{" "}
+                          <a
+                            href={`https://mail.google.com/mail/?view=cm&fs=1&to=${booking.user.email}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            {booking.user.email}
+                          </a>
+                        </p>
+                      )}
+                      <p className="text-sm text-gray-700 mb-1">
+                        📅 <span className="font-medium">Dates:</span>{" "}
+                        {booking.startDate} to {booking.endDate}
+                      </p>
+                      <p
+                        className={`text-sm font-medium ${
+                          booking.isPaid ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
+                        💰 Payment: {booking.isPaid ? "Paid" : "Unpaid"}
+                      </p>
+                    </div>
+
+                    {/* Report Bulb */}
+                    <div className="ml-4">
+                      <button
+                        onClick={() =>
+                          navigate("/report", {
+                            state: {
+                              product,
+                              booking,
+                            },
+                          })
+                        }
+                        className="relative group"
+                      >
+                        <Lightbulb className="w-6 h-6 text-yellow-500 hover:text-yellow-600 transition" />
+                        <span className="absolute -top-7 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+                          Report
+                        </span>
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (

@@ -8,10 +8,31 @@ export const AppContextProvider = ({ children }) => {
     const currency = import.meta.env.VITE_CURRENCY; 
     const navigate = useNavigate();
 
-    const [user, setUser] = useState(true);
+    const [user, setUser] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [showUserLogin, setShowUserLogin] = useState(false);
     const [products, setProducts] = useState([]);
     const [searchQuery,setSearchQuery]=useState([]);
+
+    // Mock notifications
+  const [notifications, setNotifications] = useState([
+  {
+    message: "Your item has been approved!",
+    date: "Aug 18, 2025",
+    type: "success",
+  },
+  {
+    message: "New message from John.",
+    date: "Aug 17, 2025",
+    type: "info",
+  },
+  {
+    message: "Reminder: Please return 'Mountain Tent' by Aug 20, 2025.",
+    date: "Aug 19, 2025",
+    type: "reminder",
+  },
+]);
+
     
 
 
@@ -36,6 +57,8 @@ export const AppContextProvider = ({ children }) => {
     const value = {
         navigate,
         user,
+        isAdmin,
+        setIsAdmin,
         setUser,
         showUserLogin,
         setShowUserLogin,
@@ -44,7 +67,9 @@ export const AppContextProvider = ({ children }) => {
         currency,
         searchQuery,
         setSearchQuery,
-        getTotalAmount
+        getTotalAmount,
+        notifications,
+        setNotifications,
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

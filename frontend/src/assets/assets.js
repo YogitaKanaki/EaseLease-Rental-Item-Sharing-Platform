@@ -1,4 +1,5 @@
 import logo from "./logo.png";
+import logo2 from "./logo2.jpeg";
 import addItem from "./addItem.png"
 import profile from "./profile.jpg"
 import banner from "./banner.webp"
@@ -36,6 +37,7 @@ import upload_area from "./upload_area.png"
 
 export const assets={
     logo,
+    logo2,
     upload_area,
     add_address_image,
     arrow_right_icon_colored,
@@ -140,6 +142,7 @@ export const DummyProducts = [
     createdAt: "2025-03-25T07:17:46.018Z",
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
+    owner: "John Doe"
   },
   {
     _id: "cam02",
@@ -158,6 +161,7 @@ export const DummyProducts = [
     createdAt: "2025-03-25T07:17:46.018Z",
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
+    owner: "Jane Smith"
   },
 
   // Furniture
@@ -178,6 +182,7 @@ export const DummyProducts = [
     createdAt: "2025-03-25T07:17:46.018Z",
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
+    owner: "Michael Johnson"
   },
 
   // Vehicles
@@ -198,6 +203,7 @@ export const DummyProducts = [
     createdAt: "2025-03-25T07:17:46.018Z",
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
+    owner: "Emily Davis"
   },
 
   // Electronics / Gaming
@@ -265,6 +271,8 @@ export const dummyRentals = [
   {
     _id: "67f258798f87e633667863a1",
     userId: "67b5880e4d09769c5ca61644",
+    name: "John Doe", // Renter's name
+    contact: "john@gmail.com",
     items: [
       {
         product: DummyProducts[0], // e.g., Canon DSLR Camera
@@ -272,7 +280,7 @@ export const dummyRentals = [
         _id: "67f258798f87e633667863a2",
       },
     ],
-    amount: 2500, // Total amount = rentalPrice + deposit
+    amount: 2500,
     address: dummyAddress[0],
     paymentType: "Online Payment",
     isPaid: true,
@@ -284,9 +292,11 @@ export const dummyRentals = [
   {
     _id: "67f258798f87e633667863a3",
     userId: "67b5880e4d09769c5ca61644",
+    name: "Jane Smith", // Renter's name
+    contact: "sofa@dummyrentals.com", // ✅ added contact
     items: [
       {
-        product:DummyProducts[2], // e.g., Sofa 
+        product: DummyProducts[2], // e.g., Sofa 
         quantity: 1,
         _id: "67f258798f87e633667863a4",
       },
@@ -301,6 +311,8 @@ export const dummyRentals = [
     updatedAt: "2025-07-29T10:00:00.000Z",
   },
 ];
+
+
 
 
 
