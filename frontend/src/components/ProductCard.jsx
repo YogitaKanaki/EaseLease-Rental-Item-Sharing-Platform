@@ -3,7 +3,7 @@ import { assets } from '../assets/assets';
 import { useAppContext } from '../context/AppContext';
 
 const ProductCard = ({ product }) => {
-    const { navigate } = useAppContext();
+    const { navigate,currency } = useAppContext();
 
     const goToDetails = () => {
         navigate(`/products/${product.category.toLowerCase()}/${product._id}`);
@@ -45,9 +45,9 @@ const ProductCard = ({ product }) => {
                 {/* Price and Rent Now */}
                 <div className="flex items-end justify-between mt-3">
                     <p className="md:text-xl text-base font-medium text-primary">
-                        ${product.pricePerDay}
+                        {currency}{product.pricePerDay}
                         <span className="text-gray-500/60 md:text-sm text-xs line-through">
-                            ${product.deposit}
+                            {currency}{product.deposit}
                         </span>
                     </p>
 
