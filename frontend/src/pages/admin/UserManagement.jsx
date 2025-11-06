@@ -1,42 +1,34 @@
-import React from "react";
-
-const users = [
-  {
-    id: "U001",
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+91 9876543210",
-    role: "Owner",
-    status: "Active",
-    itemsListed: 5,
-    rentalsMade: 3,
-    dateJoined: "2025-05-01",
-  },
-  {
-    id: "U002",
-    name: "Sarah Khan",
-    email: "sarah@example.com",
-    phone: "+91 9123456780",
-    role: "Both",
-    status: "Suspended",
-    itemsListed: 8,
-    rentalsMade: 10,
-    dateJoined: "2025-06-12",
-  },
-  {
-    id: "U003",
-    name: "Ravi Patel",
-    email: "ravi@example.com",
-    phone: "+91 9988776655",
-    role: "Renter",
-    status: "Pending Verification",
-    itemsListed: 0,
-    rentalsMade: 2,
-    dateJoined: "2025-07-20",
-  },
-];
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function UserManagement() {
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // ✅ Fetch all users with item/rental counts
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/admin/users");
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  // ✅ View Profile (fetch full user details)
+  const handleViewProfile = async (id) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/admin/users/${id}`);
+      setSelectedUser(response.data);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">User Management</h1>
@@ -58,38 +50,90 @@ export default function UserManagement() {
                     : "bg-yellow-100 text-yellow-700"
                 }`}
               >
-                {user.status}
+                {user.status || "Active"}
               </span>
             </div>
 
-            <p className="text-sm text-gray-500">ID: {user.id}</p>
             <p className="text-sm text-gray-500">📧 {user.email}</p>
-            <p className="text-sm text-gray-500">📱 {user.phone}</p>
-            <p className="text-sm text-gray-500">Role: {user.role}</p>
             <p className="text-sm text-gray-500">
-              Items Listed: {user.itemsListed}
+              📦 Items Listed: {user.itemsListed ?? 0}
             </p>
             <p className="text-sm text-gray-500">
-              Rentals Made: {user.rentalsMade}
-            </p>
-            <p className="text-sm text-gray-500">
-              Date Joined: {user.dateJoined}
+              🔁 Rentals Made: {user.rentalsMade ?? 0}
             </p>
 
             <div className="flex justify-between mt-4">
-              <button className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm">
+              <button
+                onClick={() => handleViewProfile(user.id)}
+                className="px-3 py-1 bg-primary cursor-pointer text-white rounded-lg hover:bg-primary-dull text-sm"
+              >
                 View Profile
               </button>
-              <button className="px-3 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm">
-                Suspend
-              </button>
-              <button className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm">
-                Delete
-              </button>
+              
+              
             </div>
           </div>
         ))}
       </div>
+
+      {/* ✅ User Profile Modal */}
+      {selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-11/12 md:w-2/3 lg:w-1/2 shadow-xl relative">
+            <h2 className="text-2xl font-bold mb-4 text-gray-800">
+              {selectedUser.name}'s Profile
+            </h2>
+
+            <p className="text-sm text-gray-600 mb-2">📧 {selectedUser.email}</p>
+            <p className="text-sm text-gray-600 mb-2">
+              🗓️ Joined: {selectedUser.joinedDate?.split("T")[0] || "N/A"}
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              Total Rentals: {selectedUser.rentals?.length ?? 0}
+            </p>
+
+            <div>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                Items Listed:
+              </h3>
+              {selectedUser.items?.length ? (
+                <ul className="list-disc pl-5 text-gray-600 text-sm">
+                  {selectedUser.items.map((item) => (
+                    <li key={item.id}>{item.name}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500">No items listed.</p>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                Rentals Made:
+              </h3>
+              {selectedUser.rentals?.length ? (
+                <ul className="list-disc pl-5 text-gray-600 text-sm">
+                  {selectedUser.rentals.map((rental) => (
+                    <li key={rental.id}>
+                      Product ID: {rental.productId} — Total Cost: ₹
+                      {rental.totalCost}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-500">No rentals found.</p>
+              )}
+            </div>
+
+            <button
+              onClick={() => setSelectedUser(null)}
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

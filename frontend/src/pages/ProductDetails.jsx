@@ -1,88 +1,151 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
-import { Link, useParams } from "react-router-dom";
-import { assets } from "../assets/assets";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
-import {toast} from "react-hot-toast";
-import { LightbulbIcon } from "lucide-react";
+import { toast } from "react-hot-toast";
+import axios from "axios";
 
 const ProductDetails = () => {
+    const { currency, user } = useAppContext();
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-    const {products,navigate,currency}=useAppContext()
-    const {id}=useParams()
-
+    const [product, setProduct] = useState(null);
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [thumbnail, setThumbnail] = useState(null);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [bookedDates, setBookedDates] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const product=products.find((item)=>item._id===id);
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const res = await axios.get(`http://localhost:8080/api/product/${id}`);
+                const prod = res.data;
 
-    useEffect(()=>{
-        if(products.length>0 && product){
-            let productsCopy = products.slice();
-            productsCopy=productsCopy.filter((item)=>product.category===item.category)
-            setRelatedProducts(productsCopy.slice(0,5))
-        }
+                // Fix images
+                const fixedImages = prod.images?.map(img =>
+                    img.startsWith("data:image") ? img : `data:image/png;base64,${img}`
+                ) || [];
 
-    },[products, product])
+                setProduct({ ...prod, images: fixedImages });
+                setThumbnail(fixedImages.length > 0 ? fixedImages[0] : null);
 
-    useEffect(()=>{
-        setThumbnail(product?.image[0]?product.image[0]:null)
-    },[product])
+                // Fetch related products
+                const relatedRes = await axios.get(
+                    `http://localhost:8080/api/product/related/${prod.category}`
+                );
+                const fixedRelated = relatedRes.data.map(p => ({
+                    ...p,
+                    images: p.images?.map(img =>
+                        img.startsWith("data:image") ? img : `data:image/png;base64,${img}`
+                    ) || [],
+                }));
+                setRelatedProducts(fixedRelated.filter(p => p._id !== prod._id).slice(0, 5));
 
-    const handleRentNow = () => {
-        if(!startDate || !endDate){
-            //alert("Please select both start and end dates");
-            toast.error("Please select both start and end dates")
-            
+                // Fetch booked dates
+                const rentalsRes = await axios.get(`http://localhost:8080/api/rentals/product/${prod._id}`);
+                const booked = rentalsRes.data.flatMap(r => {
+                    const start = new Date(r.startDate);
+                    const end = new Date(r.endDate);
+                    const arr = [];
+                    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                        arr.push(d.toISOString().split("T")[0]); // store as YYYY-MM-DD
+                    }
+                    return arr;
+                });
+                setBookedDates(booked);
+
+            } catch (err) {
+                console.error(err);
+                toast.error("Failed to load product");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) fetchProduct();
+    }, [id]);
+
+    const handleRentNow = async () => {
+        if (!startDate || !endDate) {
+            toast.error("Please select both start and end dates");
             return;
         }
-        navigate('/rentnow', { state: { productId: product._id, startDate, endDate } });
-    }
+        if (bookedDates.some(d => d >= startDate && d <= endDate)) {
+            toast.error("Selected dates are already booked");
+            return;
+        }
+        if (product.ownerEmail === user?.email) {
+            toast.error("Cannot rent own product");
+            return;
+        }
 
-    return product && (
-        <div className="mt-12">
-            <p>
-                <Link to={"/"}>Home</Link> /
-                <Link to={"/products"}>Products</Link> /
-                <Link to={`/products/${product.category.toLowerCase()}`}> {product.category}</Link> /
-                <span className="text-primary"> {product.name}</span>
+        try {
+            const payload = {
+                productId: product._id,
+                startDate,
+                endDate,
+                renterName: user?.name || "Guest",
+                renterEmail: user?.email || "guest@example.com",
+                paymentType: "Online",
+            };
+            const res = await axios.post("http://localhost:8080/api/rentals/create", payload);
+            toast.success("Product Booked Successfully");
+            navigate("/rentals");
+        } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data || "Failed to book product");
+        }
+    };
+
+    // Disable booked and past dates for input type="date"
+    const getMinDate = () => {
+        const today = new Date();
+        return today.toISOString().split("T")[0];
+    };
+
+    const isDateDisabled = (date) => {
+        return bookedDates.includes(date);
+    };
+
+    if (loading) return <p className="text-center mt-20">Loading...</p>;
+    if (!product) return <p className="text-center mt-20">Product not found</p>;
+
+    return (
+        <div className="mt-12 px-4">
+            <p className="text-sm mb-4">
+                <Link to="/" className="text-primary hover:underline">Home</Link> /{" "}
+                <Link to="/products" className="text-primary hover:underline">Products</Link> /{" "}
+                <span className="text-primary font-medium">{product.name}</span>
             </p>
 
             <div className="flex flex-col md:flex-row gap-16 mt-4">
+                {/* Images */}
                 <div className="flex gap-3">
                     <div className="flex flex-col gap-3">
-                        {product.image.map((image, index) => (
-                            <div key={index} onClick={() => setThumbnail(image)} className="border max-w-24 border-gray-500/30 rounded overflow-hidden cursor-pointer" >
-                                <img src={image} alt={`Thumbnail ${index + 1}`} />
+                        {product.images?.length > 0 && product.images.map((img, idx) => (
+                            <div
+                                key={idx}
+                                onClick={() => setThumbnail(img)}
+                                className={`border rounded overflow-hidden cursor-pointer transition-all duration-300 ${thumbnail === img ? "border-primary" : "border-gray-300"}`}
+                            >
+                                <img src={img} alt={`Thumbnail ${idx}`} className="w-24 h-24 object-cover" />
                             </div>
                         ))}
                     </div>
-
-                    <div className="border border-gray-500/30 max-w-100 rounded overflow-hidden">
-                        <img src={thumbnail} alt="Selected product" className="w-full h-full object-contain" />
+                    <div className="border border-gray-300 rounded overflow-hidden flex-1 flex items-center justify-center">
+                        <img src={thumbnail} alt="Selected" className="w-full h-96 object-contain" />
                     </div>
                 </div>
 
+                {/* Product Info */}
                 <div className="text-sm w-full md:w-1/2">
                     <h1 className="text-3xl font-medium">{product.name}</h1>
+                    <p className="text-2xl font-medium mt-6">{currency}{product.pricePerDay}/day</p>
+                    <p className="text-gray-500/70">Deposit: {currency}{product.deposit}</p>
 
-                    <div className="flex items-center gap-0.5 mt-1">
-                        {Array(5).fill('').map((_, i) => (
-                            <img src={i<4?assets.star_icon:assets.star_dull_icon} alt="" 
-                            className="md:w-4 w-3.5" />
-                        ))}
-                        <p className="text-base ml-2">(4)</p>
-                    </div>
-
-                    <div className="mt-6">
-                        <p className="text-2xl font-medium">MRP: {currency}{product.pricePerDay}/day</p>
-                        <p className="text-gray-500/70 ">Deposit: {currency}{product.deposit}</p>
-                        <span className="text-gray-500/70">(inclusive of all taxes)</span>
-                    </div>
-
-                    {/* Owner name */}
                     <div className="mt-4">
                         <p className="font-medium">Owner:</p>
                         <p className="text-gray-500/80">{product.owner || "Not specified"}</p>
@@ -90,60 +153,60 @@ const ProductDetails = () => {
 
                     <p className="text-base font-medium mt-6">About Product</p>
                     <ul className="list-disc ml-4 text-gray-500/70">
-                        {product.description.map((desc, index) => (
-                            <li key={index}>{desc}</li>
-                        ))}
+                        {Array.isArray(product.description) ? product.description.map((desc, idx) => (
+                            <li key={idx}>{desc}</li>
+                        )) : <li>{product.description}</li>}
                     </ul>
 
-                    {/* Date selection */}
                     <div className="mt-6">
                         <p className="font-medium mb-2">Select Rental Dates</p>
                         <div className="flex gap-4">
                             <input
                                 type="date"
                                 className="border p-2 rounded text-primary"
-                                min={product.availableFrom}
+                                min={getMinDate()}
                                 max={product.availableTo}
                                 value={startDate}
-                                onChange={(e)=>setStartDate(e.target.value)}
+                                onChange={e => {
+                                    if (!isDateDisabled(e.target.value)) setStartDate(e.target.value);
+                                    else toast.error("This product is already booked");
+                                }}
                             />
                             <input
                                 type="date"
                                 className="border p-2 rounded text-primary"
-                                min={startDate || product.availableFrom}
+                                min={startDate || getMinDate()}
                                 max={product.availableTo}
                                 value={endDate}
-                                onChange={(e)=>setEndDate(e.target.value)}
+                                onChange={e => {
+                                    if (!isDateDisabled(e.target.value)) setEndDate(e.target.value);
+                                    else toast.error("This product is already booked");
+                                }}
                             />
                         </div>
                     </div>
 
-                    <div className="flex items-center mt-10 gap-4 text-base">
-                        <button onClick={handleRentNow} className="w-full py-3.5 cursor-pointer font-medium bg-primary text-white hover:bg-primary-dull transition" >
-                            Rent Now
-                        </button>
-                      
-                    </div>
-                    
+                    <button
+                        onClick={handleRentNow}
+                        disabled={product.ownerEmail === user?.email}
+                        className="w-full mt-6 py-3.5 bg-primary text-white rounded hover:bg-primary-dull transition disabled:opacity-50"
+                    >
+                        {product.ownerEmail === user?.email ? "Cannot rent own product" : "Rent Now"}
+                    </button>
                 </div>
-                
             </div>
 
-            {/*----related products----*/}
-            <div className="flex flex-col items-center mt-20">
-                <div className="flex flex-col items-center w-max">
-                    <p className="text-3xl font-medium">Related Products</p>
-                    <div className="w-20 h-0.5 bg-primary rounded-full mt-2"></div>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-6 lg:grid-cols-5 mt-6">
-                    {relatedProducts.filter((product)=>product.inStock).map((product,index)=>(
-                        <ProductCard key={index} product={product} />
+            {/* Related Products */}
+            <div className="mt-20">
+                <h2 className="text-3xl font-medium mb-4">Related Products</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {relatedProducts.map((prod, idx) => (
+                        <ProductCard key={idx} product={prod} />
                     ))}
                 </div>
-                <button onClick={()=>{navigate('/products');scrollTo(0,0)}} className="mx-auto cursor-pointer px-12 my-16 py-2.5 border rounded
-                text-primary hover:bg-primary/10 transition">See More</button>
             </div>
         </div>
     );
 };
+
 export default ProductDetails;
